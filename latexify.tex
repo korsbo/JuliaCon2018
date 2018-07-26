@@ -1,0 +1,149 @@
+\documentclass{beamer}
+\usetheme{metropolis}
+\usepackage[utf8]{inputenc}
+
+\usepackage{fontawesome}
+\usepackage{xcolor}
+\definecolor{monokaibg}{HTML}{282828} % from https://github.com/kevinsawicki/monokai
+
+
+\usepackage{tcolorbox}
+\tcbuselibrary{minted,skins}
+
+% \BeforeBeginEnvironment{minted}{\begin{mdframed}[backgroundcolor=bg]}
+% \AfterEndEnvironment{minted}{\end{mdframed}}
+
+\newtcblisting{juliacode}{
+listing engine=minted,
+colback=monokaibg,
+colframe=monokaibg,
+listing only,
+minted style=monokai,
+% minted style=lovelace,
+minted language=julia,
+minted options={texcl=true, beameroverlays=true, mathescape=true, escapeinside=~~, fontsize=\footnotesize},
+left=1mm,
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Title stuff
+\usepackage[framemethod=tikz]{mdframed}
+
+\newmdenv[tikzsetting={draw=black,fill=white,fill opacity=0.7, line width=4pt},
+backgroundcolor=none,leftmargin=0,rightmargin=40,innertopmargin=4pt]
+{titlebox}
+
+
+\newmdenv[tikzsetting={draw=black,fill=white,fill opacity=0.7, line width=1pt},backgroundcolor=none,leftmargin=0,rightmargin=0,innertopmargin=4pt,skipbelow=\baselineskip,%
+skipabove=\baselineskip]{TitleBox}
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Latexify.jl and how Julia's metaprogramming makes it useful}
+\author{Niklas Korsbo}
+\date{8th August 2018}
+\institute{Cambridge University\\Department of Applied Mathemathics and Theoretical Physics\\The Sainsbury Laboratory}
+
+
+\begin{document}
+
+{
+% \usebackgroundtemplate{\includegraphics[width=1.0\paperwidth]{images/Background.jpg}}
+\begin{frame}[fragile, plain]
+  \begin{TitleBox}
+    \textsf{\textbf{\Large Latexify.jl,\\\normalsize and how Julia's metaprogramming makes it useful }}
+
+    \insertauthor
+
+    \small \textit{JuliaCon 2018}
+
+    \href{http://twitter.com/NKorsbo}{\faTwitter NKorsbo}~
+    \href{https://github.com/korsbo}{\faGithub Korsbo}
+  \end{TitleBox}
+
+  \begin{juliacode}
+    Julia> using Latexify
+    Julia> ex = :(x^n/(k^n + x^n))
+    Julia> latexify(ex)
+
+    ~\textcolor{white}{\huge $\frac{x^{n}}{k^{n} + x^{n}}$}~
+  \end{juliacode}
+
+
+
+  \includegraphics[height=0.15\textheight]{damtp}\hspace{8mm}
+  \includegraphics[height=0.15\textheight]{slcu}\hspace{8mm}
+  \includegraphics[height=0.15\textheight]{peterhouse}\hspace{8mm}
+  \includegraphics[height=0.15\textheight]{diffeq}
+
+\end{frame}
+}
+
+\begin{frame}[fragile]{What Latexify.jl does}
+
+  \begin{juliacode}
+    Julia> using Latexify
+    Julia> ex = :(x^n/(k^n + x^n))
+    Julia> latexify(ex)
+
+    ~\textcolor{white}{\huge $\frac{x^{n}}{k^{n} + x^{n}}$}~
+  \end{juliacode}
+
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Motivated by laziness}
+  \framesubtitle{Code $\to$ report}
+  \textbf{Code $\to$ Report}
+
+  \begin{onlyenv}<1>
+    \begin{juliacode}
+      model = @ode_def Model begin
+      dL = (P*pC3 + pL)*(w^2)/(kL^2 + w^2) - DL*L
+      diC3 = -DL*iC3
+      dl = pc3*iC3 +pl*L - Dl*l + r1*c1l - r1*c1*l - P*r2*b*l + r2*bl - a1*c1*l*((c2*P)^na1)/(((c2*P)^na1)+(kc2c1^na1)) - P*a2*b*l*((c2*P)^na2)/(((c2*P)^na2)+(kc2b^na2))
+      dc1 = P*pc1 - Dc1*c1 + r1*c1l - r1*c1*l - a1*c1*l*((c2*P)^na1)/(((c2*P)^na1)+(kc2c1^na1))
+      dc1l = r1*c1*l - r1*c1l - Dc1l*c1l + a1*c1*l*((c2*P)^na1)/(((c2*P)^na1)+(kc2c1^na1))
+      db = P*pb*(kc1b^nc1b)/(c1l^nc1b + kc1b^nc1b) - Db*b + r2*bl - P*r2*b*l  - P*a2*b*l*((c2*P)^na2)/(((c2*P)^na2)+(kc2b^na2))
+      dbl = P*r2*b*l - r2*bl - Dbl*bl + P*a2*b*l*((c2*P)^na2)/(((c2*P)^na2)+(kc2b^na2))
+      dw = (P*pw*(kwc1^nwc)*(kwb^nwb)/((c1l^nwc + kwc1^nwc)*(bl^nwb+kwb^nwb))) - Dw*w
+      end P pL pC3 kL DL pl pc3 Dl r1 r1 pc1 Dc1 a1 kc2c1 Dc1l c2 pw kwc1 Dw r2 r2 pb kc1b Db a2 kc2b Dbl kwb na1 na2 nc1b nwb nwc
+    \end{juliacode}
+  \end{onlyenv}
+
+  \begin{onlyenv}<2>
+    \begin{juliacode}
+      Julia> model.funcs
+      8-element Array{Expr,1}:
+      :(((P * pC3 + pL) * w ^ 2) / (kL ^ 2 + w ^ 2) - DL * L)
+      :(-DL * iC3)
+      :((((((((pc3 * iC3 + pl * L) - Dl * l) + r1 * c1l) - r1 * c1 * l) - P * r2 * b * l) + r2 * bl) - (a1 * c1 * l * (c2 * P) ^ na1) / ((c2 * P) ^ na1 + kc2c1 ^ na1)) - (P * a2 * b * l * (c2 * P) ^ na2) / ((c2 * P) ^ na2 + kc2b ^ na2))
+      :((((P * pc1 - Dc1 * c1) + r1 * c1l) - r1 * c1 * l) - (a1 * c1 * l * (c2 * P) ^ na1) / ((c2 * P) ^ na1 + kc2c1 ^ na1))
+      :(((r1 * c1 * l - r1 * c1l) - Dc1l * c1l) + (a1 * c1 * l * (c2 * P) ^ na1) / ((c2 * P) ^ na1 + kc2c1 ^ na1))
+      :(((((P * pb * kc1b ^ nc1b) / (c1l ^ nc1b + kc1b ^ nc1b) - Db * b) + r2 * bl) - P * r2 * b * l) - (P * a2 * b * l * (c2 * P) ^ na2) / ((c2 * P) ^ na2 + kc2b ^ na2))
+      :(((P * r2 * b * l - r2 * bl) - Dbl * bl) + (P * a2 * b * l * (c2 * P) ^ na2) / ((c2 * P) ^ na2 + kc2b ^ na2))
+      :((P * pw * kwc1 ^ nwc * kwb ^ nwb) / ((c1l ^ nwc + kwc1 ^ nwc) * (bl ^ nwb + kwb ^ nwb)) - Dw * w)
+    \end{juliacode}
+  \end{onlyenv}
+
+
+  \begin{onlyenv}<3>
+    \Tiny
+    \begin{align}
+      \frac{dL}{dt} =& \frac{\left( P \cdot pC3 + pL \right) \cdot w^{2}}{kL^{2} + w^{2}} - DL \cdot L \\
+      \frac{diC3}{dt} =&  - DL \cdot iC3 \\
+      \frac{dl}{dt} =& pc3 \cdot iC3 + pl \cdot L - Dl \cdot l + r1 \cdot c1l - r1 \cdot c1 \cdot l - P \cdot r2 \cdot b \cdot l + r2 \cdot bl - \frac{a1 \cdot c1 \cdot l \cdot \left( c2 \cdot P \right)^{na1}}{\left( c2 \cdot P \right)^{na1} + kc2c1^{na1}} - \frac{P \cdot a2 \cdot b \cdot l \cdot \left( c2 \cdot P \right)^{na2}}{\left( c2 \cdot P \right)^{na2} + kc2b^{na2}} \\
+      \frac{dc1}{dt} =& P \cdot pc1 - Dc1 \cdot c1 + r1 \cdot c1l - r1 \cdot c1 \cdot l - \frac{a1 \cdot c1 \cdot l \cdot \left( c2 \cdot P \right)^{na1}}{\left( c2 \cdot P \right)^{na1} + kc2c1^{na1}} \\
+      \frac{dc1l}{dt} =& r1 \cdot c1 \cdot l - r1 \cdot c1l - Dc1l \cdot c1l + \frac{a1 \cdot c1 \cdot l \cdot \left( c2 \cdot P \right)^{na1}}{\left( c2 \cdot P \right)^{na1} + kc2c1^{na1}} \\
+      \frac{db}{dt} =& \frac{P \cdot pb \cdot kc1b^{nc1b}}{c1l^{nc1b} + kc1b^{nc1b}} - Db \cdot b + r2 \cdot bl - P \cdot r2 \cdot b \cdot l - \frac{P \cdot a2 \cdot b \cdot l \cdot \left( c2 \cdot P \right)^{na2}}{\left( c2 \cdot P \right)^{na2} + kc2b^{na2}} \\
+      \frac{dbl}{dt} =& P \cdot r2 \cdot b \cdot l - r2 \cdot bl - Dbl \cdot bl + \frac{P \cdot a2 \cdot b \cdot l \cdot \left( c2 \cdot P \right)^{na2}}{\left( c2 \cdot P \right)^{na2} + kc2b^{na2}} \\
+      \frac{dw}{dt} =& \frac{P \cdot pw \cdot kwc1^{nwc} \cdot kwb^{nwb}}{\left( c1l^{nwc} + kwc1^{nwc} \right) \cdot \left( bl^{nwb} + kwb^{nwb} \right)} - Dw \cdot w \\
+    \end{align}
+
+  \end{onlyenv}
+
+\end{frame}
+
+\end{document}
