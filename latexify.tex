@@ -6,6 +6,7 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{fontawesome}
+\usepackage{minted}
 \usepackage{xcolor}
 \definecolor{monokaibg}{HTML}{282828} % from https://github.com/kevinsawicki/monokai
 
@@ -24,7 +25,7 @@ listing only,
 minted style=monokai,
 % minted style=lovelace,
 minted language=julia,
-minted options={texcl=true, beameroverlays=true, mathescape=true, escapeinside=~~, fontsize=\tiny},
+minted options={texcl=true, beameroverlays=true, mathescape=true, escapeinside=~~, fontsize=\scriptsize},
 left=1mm, bottom=-1mm, top=1mm,
 }
 
@@ -92,7 +93,7 @@ skipabove=\baselineskip]{TitleBox}
 }
 
 
-\begin{frame}[fragile]{Some supported inputs/outputs}
+\begin{frame}[fragile]{Some supported inputs}
   % \only<1>{The simple stuff:}
 
   \begin{onlyenv}<1>
@@ -118,7 +119,7 @@ skipabove=\baselineskip]{TitleBox}
 
   \begin{onlyenv}<2>
 
-    Expressions
+    Expressions (key functionality)
     \begin{juliacode}
       latexify( :(a/(b+c)) )
       ~\textcolor{white}{$\frac{a}{b + c}$}~
@@ -138,6 +139,7 @@ skipabove=\baselineskip]{TitleBox}
            "x/(k+x)"         :X_inactive]
       latexify(M)
     \end{juliacode}
+    \vspace{-5mm}
     \begin{equation*}
       \left[
       \begin{array}{cc}
@@ -147,7 +149,6 @@ skipabove=\baselineskip]{TitleBox}
       \right]
     \end{equation*}
 
-    \textbullet Pick your output
     % \begin{juliacode}
     %   latexify(M; env=:tabular)
     % \end{juliacode}
@@ -157,49 +158,88 @@ skipabove=\baselineskip]{TitleBox}
     % \end{tabular}
 
     \begin{juliacode}
-      latexify(M; env=:align)
+      D = Dict(:a=>1.0, :b=>"a^c", :c=>3//4)
+      latexify( D )
     \end{juliacode}
-    \vspace{-8mm}
-\begin{align*}
-c_{1} \cdot e^{ - c_{2} \cdot t} =& \frac{3}{4} \\
-\frac{x}{k + x} =& X_{inactive}
-\end{align*}
+    \vspace{-5mm}
+\begin{equation*}
+\left[
+\begin{array}{cc}
+a & 1.0 \\
+b & a^{c} \\
+c & \frac{3}{4} \\
+\end{array}
+\right]
+\end{equation*}
   \end{onlyenv}
 
-%   \begin{onlyenv}<5>
-%     The composites
-%
-%     Dicts
-%     \begin{juliacode}
-%       D = Dict(:a=>1.0, :b=>"a^c", :c=>3//4)
-%       latexify( D )
-%    \end{juliacode}
-%    \small
-% \begin{equation}
-% \left[
-% \begin{array}{cc}
-% a & 1.0 \\
-% b & a^{c} \\
-% c & \frac{3}{4} \\
-% \end{array}
-% \right]
-% \end{equation}
-%
-%     \begin{juliacode}
-%        latexify(D; env=:align)
-%    \end{juliacode}
-%    \vspace{-8mm}
-%    \small
-% \begin{align}
-% a =& 1.0 \\
-% b =& a^{c} \\
-% c =& \frac{3}{4}
-% \end{align}
-%  \end{onlyenv}
+\end{frame}
+
+\begin{frame}[fragile]{Some supported outputs}
+  \begin{juliacode}
+  D = Dict(:a=>1.0, :b=>"a^c", :c=>3//4)
+  latexify( D )
+  \end{juliacode}
+    \vspace{-5mm}
+  \footnotesize
+\begin{equation*}
+\left[
+\begin{array}{cc}
+a & 1.0 \\
+b & a^{c} \\
+c & \frac{3}{4} \\
+\end{array}
+\right]
+\end{equation*}
+
+\begin{columns}[t]
+\begin{column}{0.5\textwidth}
+\begin{juliacode}
+  latexify( D; env=:align )
+\end{juliacode}
+  \footnotesize
+\begin{align*}
+a =& 1.0 \\
+b =& a^{c} \\
+c =& \frac{3}{4} \\
+\end{align*}
+\end{column}
+\begin{column}{0.5\textwidth}  %%<--- here
+\begin{juliacode}
+  latexify( D; env=:tabular )
+\end{juliacode}
+  \footnotesize
+\begin{tabular}{cc}
+$a$ & $1.0$\\
+$b$ & $a^{c}$\\
+$c$ & $\frac{3}{4}$\\
+\end{tabular}
+
+\begin{juliacode}
+  latexify( D; env=:mdtable )
+\end{juliacode}
+  \footnotesize
+\begin{minted}{md}
+| $a$ |         $1.0$ |
+| ---:| -------------:|
+| $b$ |       $a^{c}$ |
+| $c$ | $\frac{3}{4}$ |
+\end{minted}
+\vfill
+\end{column}
+\end{columns}
+
 \end{frame}
 
 
 \begin{frame}[fragile]{Print vs. Display (default)}
+
+  \textbullet Outputs a LaTeXString.
+  \begin{juliacode}
+    typeof( latexify("x/y") )
+
+    ~\large\textcolor{white}{\tiny LaTeXStrings.LaTeXString}~
+  \end{juliacode}
 
   \textbullet Print works anywhere.
   \begin{juliacode}
@@ -208,85 +248,134 @@ c_{1} \cdot e^{ - c_{2} \cdot t} =& \frac{3}{4} \\
   \end{juliacode}
   % \vspace{5mm}
 
-  \textbullet Display works with Jupyter, Jupyterlab and Hydrogen.
+  \textbullet Display renders (when supported).
   \begin{juliacode}
     Julia> display( latexify("x/y") )
 
     ~\large\textcolor{white}{$\frac{x}{y}$}~
   \end{juliacode}
 
-  \textbullet Defaults to display if possible.
-  \begin{juliacode}
-    Julia> latexify("x/y")
 
-    ~\large\textcolor{white}{$\frac{x}{y}$}~
-  \end{juliacode}
-
-  Cedits: LaTeXStrings.jl
+  Cedits: \href{https://github.com/stevengj/LaTeXStrings.jl}{LaTeXStrings.jl}
 
 
 \end{frame}
 
-\begin{frame}{Julia makes this easy}
+\begin{frame}[fragile]{Julia makes this useful}
   \begin{itemize}
-    \item Recursion,
-    \item Multiple dispatch,
-    \item Homoiconicity (Expressions!)
+    \item Expressions
+    \begin{itemize}
+      \item Convertible to \LaTeX
+      \item Omnipresent and accessible:
+\begin{juliacode}
+  Julia> f(x) = x/2
+  Julia> @code_lowered f(1.)
+  CodeInfo(:(begin
+      nothing
+      return x / 2
+    end))
+\end{juliacode}
+    \end{itemize}
+
+    \item Macros
+    \begin{itemize}
+      \item Manipulate Expressions
+      \item Domain-specific languages (DSLs)
+    \end{itemize}
+
   \end{itemize}
-\end{frame}
 
-\begin{frame}{Julia makes this useful}
-  \begin{itemize}
-    \item Expressions everywhere
-
-
-    \item Macros $\to$ Domain-specific languages (DSLs)
-  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{DiffEqBiological.jl}
-  \begin{onlyenv}<1>
   \begin{juliacode}
-  rn = @reaction_network PositiveFeedbackReactions begin
-    hill(y, v_x, k_x, n_x), 0 --> x
-    d_x, x --> 0
-    hill(x, v_y, k_y, n_y), 0 --> y
-    d_y, y --> 0
-  end v_x k_x n_x d_x v_y k_y n_y d_y
-
-  latexify(rn)
-
+reactions = @reaction_network ReactionDemo begin
+    r_1, A + B --> C
+    r_2, C --> A
+end r_1 r_2
   \end{juliacode}
-
-
-\begin{align*}
-\frac{dx}{dt} =& \frac{v_{x} \cdot y^{n_{x}}}{k_{x}^{n_{x}} + y^{n_{x}}} - d_{x} \cdot x \\
-\frac{dy}{dt} =& \frac{v_{y} \cdot x^{n_{y}}}{k_{y}^{n_{y}} + x^{n_{y}}} - d_{y} \cdot y
-\end{align*}
-\end{onlyenv}
-
 
   \begin{onlyenv}<2>
-  \begin{juliacode}
-  rn = @reaction_network PositiveFeedbackReactions begin
-    hill(y, v_x, k_x, n_x), 0 --> x
-    d_x, x --> 0
-    hill(x, v_y, k_y, n_y), 0 --> y
-    d_y, y --> 0
-  end v_x k_x n_x d_x v_y k_y n_y d_y
 
-  latexify(rn, env=:arrow)
+    \textbullet Information is available:
+    \begin{juliacode}
+Julia> reactions.f_func
+3-element Array{Expr,1}:
+   :(-1 * r_1 * A * B + r_2 * C)
+   :(+(-1 * r_1 * A * B))
+   :(r_1 * A * B + -1 * r_2 * C)
+    \end{juliacode}
 
-  \end{juliacode}
+  \end{onlyenv}
 
 
+  \begin{onlyenv}<3>
+    \begin{columns}[t]
+\begin{column}{0.5\textwidth}
+    \begin{juliacode}
+latexify(reactions)
+    \end{juliacode}
 \begin{align*}
-\ce{ \varnothing &<=>[{\frac{v_{x} \cdot y^{n_{x}}}{k_{x}^{n_{x}} + y^{n_{x}}}}][{d_{x}}] x}\\\\
-\ce{ \varnothing &<=>[{\frac{v_{y} \cdot x^{n_{y}}}{k_{y}^{n_{y}} + x^{n_{y}}}}][{d_{y}}] y}\\\\
+\frac{dA}{dt} =&  - r_{1} \cdot A \cdot B + r_{2} \cdot C \\
+\frac{dB}{dt} =&  - r_{1} \cdot A \cdot B \\
+\frac{dC}{dt} =& r_{1} \cdot A \cdot B - r_{2} \cdot C \\
 \end{align*}
-\end{onlyenv}
-
+\end{column}
+\begin{column}{0.5\textwidth}  %%<--- here
+    \begin{juliacode}
+latexify(reactions; env=:arrow)
+    \end{juliacode}
+\begin{align*}
+\ce{ A + B &->[r_{1}] C}\\
+\ce{ C &->[r_{2}] A}\\
+\end{align*}
+\end{column}
+\end{columns}
+  \end{onlyenv}
 \end{frame}
+% \begin{frame}[fragile]{DiffEqBiological.jl}
+%   \begin{onlyenv}<1>
+%   \begin{juliacode}
+%   rn = @reaction_network PositiveFeedbackReactions begin
+%     hill(y, v_x, k_x, n_x), 0 --> x
+%     d_x, x --> 0
+%     hill(x, v_y, k_y, n_y), 0 --> y
+%     d_y, y --> 0
+%   end v_x k_x n_x d_x v_y k_y n_y d_y
+%
+%   latexify(rn)
+%
+%   \end{juliacode}
+%
+%
+% \begin{align*}
+% \frac{dx}{dt} =& \frac{v_{x} \cdot y^{n_{x}}}{k_{x}^{n_{x}} + y^{n_{x}}} - d_{x} \cdot x \\
+% \frac{dy}{dt} =& \frac{v_{y} \cdot x^{n_{y}}}{k_{y}^{n_{y}} + x^{n_{y}}} - d_{y} \cdot y
+% \end{align*}
+% \end{onlyenv}
+%
+%
+%   \begin{onlyenv}<2>
+%   \begin{juliacode}
+%   rn = @reaction_network PositiveFeedbackReactions begin
+%     hill(y, v_x, k_x, n_x), 0 --> x
+%     d_x, x --> 0
+%     hill(x, v_y, k_y, n_y), 0 --> y
+%     d_y, y --> 0
+%   end v_x k_x n_x d_x v_y k_y n_y d_y
+%
+%   latexify(rn, env=:arrow)
+%
+%   \end{juliacode}
+%
+%
+% \begin{align*}
+% \ce{ \varnothing &<=>[{\frac{v_{x} \cdot y^{n_{x}}}{k_{x}^{n_{x}} + y^{n_{x}}}}][{d_{x}}] x}\\\\
+% \ce{ \varnothing &<=>[{\frac{v_{y} \cdot x^{n_{y}}}{k_{y}^{n_{y}} + x^{n_{y}}}}][{d_{y}}] y}\\\\
+% \end{align*}
+% \end{onlyenv}
+%
+% \end{frame}
 
 \begin{frame}[fragile]{ParameterizedFunctions.jl}
   \begin{onlyenv}<1>
@@ -295,7 +384,8 @@ c_{1} \cdot e^{ - c_{2} \cdot t} =& \frac{3}{4} \\
       dx = v_x * y^n_x/(k_x^n_x + y^n_x) - d_x*x
       dy = v_y * x^n_y/(k_y^n_y + x^n_y) - d_y*y
     end v_x k_x n_x d_x v_y k_y n_y d_y
-
+  \end{juliacode}
+  \begin{juliacode}
     latexify(ode)
   \end{juliacode}
 
@@ -313,7 +403,8 @@ c_{1} \cdot e^{ - c_{2} \cdot t} =& \frac{3}{4} \\
       dx = v_x * y^n_x/(k_x^n_x + y^n_x) - d_x*x
       dy = v_y * x^n_y/(k_y^n_y + x^n_y) - d_y*y
     end v_x k_x n_x d_x v_y k_y n_y d_y
-
+  \end{juliacode}
+  \begin{juliacode}
     latexify(ode.symjac)
   \end{juliacode}
 
@@ -329,51 +420,52 @@ c_{1} \cdot e^{ - c_{2} \cdot t} =& \frac{3}{4} \\
 \end{onlyenv}
 
 
-  \begin{onlyenv}<3>
-  \begin{juliacode}
-    ode = @ode_def PositiveFeedback begin
-      dx = v_x * y^n_x/(k_x^n_x + y^n_x) - d_x*x
-      dy = v_y * x^n_y/(k_y^n_y + x^n_y) - d_y*y
-    end v_x k_x n_x d_x v_y k_y n_y d_y
-
-    latexify(ode.params)
-  \end{juliacode}
-
-  \begin{equation*}
-  \left[
-  \begin{array}{cccccccc}
-  v_{x} & k_{x} & n_{x} & d_{x} & v_{y} & k_{y} & n_{y} & d_{y} \\
-  \end{array}
-  \right]
-  \end{equation*}
-
-\end{onlyenv}
-
-
-  \begin{onlyenv}<4>
-  \begin{juliacode}
-    ode = @ode_def PositiveFeedback begin
-      dx = v_x * y^n_x/(k_x^n_x + y^n_x) - d_x*x
-      dy = v_y * x^n_y/(k_y^n_y + x^n_y) - d_y*y
-    end v_x k_x n_x d_x v_y k_y n_y d_y
-
-    params = [10., 0.5, 1., 3., 1., 3., 3., 1.]
-    latexify(ode.params, params)
-  \end{juliacode}
-\footnotesize
-\begin{align*}
-v_{x} =& 10.0 \\
-k_{x} =& 0.5 \\
-n_{x} =& 1.0 \\
-d_{x} =& 3.0 \\
-v_{y} =& 1.0 \\
-k_{y} =& 3.0 \\
-n_{y} =& 3.0 \\
-d_{y} =& 1.0
-\end{align*}
-\end{onlyenv}
+%   \begin{onlyenv}<3>
+%   \begin{juliacode}
+%     ode = @ode_def PositiveFeedback begin
+%       dx = v_x * y^n_x/(k_x^n_x + y^n_x) - d_x*x
+%       dy = v_y * x^n_y/(k_y^n_y + x^n_y) - d_y*y
+%     end v_x k_x n_x d_x v_y k_y n_y d_y
+%
+%     latexify(ode.params)
+%   \end{juliacode}
+%
+%   \begin{equation*}
+%   \left[
+%   \begin{array}{cccccccc}
+%   v_{x} & k_{x} & n_{x} & d_{x} & v_{y} & k_{y} & n_{y} & d_{y} \\
+%   \end{array}
+%   \right]
+%   \end{equation*}
+%
+% \end{onlyenv}
+%
+%
+%   \begin{onlyenv}<4>
+%   \begin{juliacode}
+%     ode = @ode_def PositiveFeedback begin
+%       dx = v_x * y^n_x/(k_x^n_x + y^n_x) - d_x*x
+%       dy = v_y * x^n_y/(k_y^n_y + x^n_y) - d_y*y
+%     end v_x k_x n_x d_x v_y k_y n_y d_y
+%
+%     params = [10., 0.5, 1., 3., 1., 3., 3., 1.]
+%     latexify(ode.params, params)
+%   \end{juliacode}
+% \footnotesize
+% \begin{align*}
+% v_{x} =& 10.0 \\
+% k_{x} =& 0.5 \\
+% n_{x} =& 1.0 \\
+% d_{x} =& 3.0 \\
+% v_{y} =& 1.0 \\
+% k_{y} =& 3.0 \\
+% n_{y} =& 3.0 \\
+% d_{y} =& 1.0
+% \end{align*}
+% \end{onlyenv}
 
 \end{frame}
+
 
 
 
@@ -429,4 +521,36 @@ d_{y} =& 1.0
 %
 % \end{frame}
 
+\begin{frame}{Acknowledgements}
+  \textbf{PhD supervisor:}
+
+  Prof. Henrik Jönsson
+
+  \textbf{Fellow Julia nerd:}
+
+  Torkel Loman
+
+  \textbf{Reasons why I started with Julia:}
+
+  Chris Rackauckas
+
+  David P. Sanders
+
+
+\vspace{4mm}
+
+  \includegraphics[height=0.15\textheight]{gatsby}\hspace{2mm}
+  \includegraphics[height=0.15\textheight]{damtp}\hspace{2mm}
+  \includegraphics[height=0.15\textheight]{slcu}\hspace{2mm}
+  \includegraphics[height=0.15\textheight]{peterhouse}
+\end{frame}
+
+\begin{frame}
+  \begin{centering}
+    \huge
+    \textbf{Thank you!}
+
+  \end{centering}
+
+\end{frame}
 \end{document}
