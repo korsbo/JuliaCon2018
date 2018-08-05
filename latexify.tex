@@ -2,6 +2,9 @@
 \usetheme{metropolis}
 \usepackage[utf8]{inputenc}
 
+\usepackage{mhchem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
 \usepackage{fontawesome}
 \usepackage{xcolor}
 \definecolor{monokaibg}{HTML}{282828} % from https://github.com/kevinsawicki/monokai
@@ -21,10 +24,21 @@ listing only,
 minted style=monokai,
 % minted style=lovelace,
 minted language=julia,
-minted options={texcl=true, beameroverlays=true, mathescape=true, escapeinside=~~, fontsize=\footnotesize},
-left=1mm,
+minted options={texcl=true, beameroverlays=true, mathescape=true, escapeinside=~~, fontsize=\tiny},
+left=1mm, bottom=-1mm, top=1mm,
 }
 
+\newtcblisting{latexcode}{
+listing engine=minted,
+% colback=monokaibg,
+colframe=white,
+listing only,
+minted style=solarized,
+% minted style=lovelace,
+minted language=latex,
+minted options={texcl=true, beameroverlays=true, mathescape=true, escapeinside=~~, fontsize=\tiny},
+left=1mm,
+}
 
 
 %%%%%%%%%%%%%%%%%%%%%%% Title stuff
@@ -35,7 +49,7 @@ backgroundcolor=none,leftmargin=0,rightmargin=40,innertopmargin=4pt]
 {titlebox}
 
 
-\newmdenv[tikzsetting={draw=black,fill=white,fill opacity=0.7, line width=1pt},backgroundcolor=none,leftmargin=0,rightmargin=0,innertopmargin=4pt,skipbelow=\baselineskip,%
+\newmdenv[tikzsetting={draw=white,fill=white,fill opacity=0.7, line width=0pt},backgroundcolor=none,leftmargin=0,rightmargin=0,innerbottommargin=2pt, innertopmargin=4pt,skipbelow=\baselineskip,%
 skipabove=\baselineskip]{TitleBox}
 %%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -51,12 +65,10 @@ skipabove=\baselineskip]{TitleBox}
 % \usebackgroundtemplate{\includegraphics[width=1.0\paperwidth]{images/Background.jpg}}
 \begin{frame}[fragile, plain]
   \begin{TitleBox}
-    \textsf{\textbf{\Large Latexify.jl,\\\normalsize and how Julia's metaprogramming makes it useful }}
+    \textsf{\textbf{\Large Latexify.jl\\\normalsize and how Julia's metaprogramming makes it useful }}
 
-    \insertauthor
-
-    \small \textit{JuliaCon 2018}
-
+    \insertauthor~
+    % \small \textit{JuliaCon 2018}~
     \href{http://twitter.com/NKorsbo}{\faTwitter NKorsbo}~
     \href{https://github.com/korsbo}{\faGithub Korsbo}
   \end{TitleBox}
@@ -79,71 +91,342 @@ skipabove=\baselineskip]{TitleBox}
 \end{frame}
 }
 
-\begin{frame}[fragile]{What Latexify.jl does}
 
-  \begin{juliacode}
-    Julia> using Latexify
-    Julia> ex = :(x^n/(k^n + x^n))
-    Julia> latexify(ex)
-
-    ~\textcolor{white}{\huge $\frac{x^{n}}{k^{n} + x^{n}}$}~
-  \end{juliacode}
-
-
-\end{frame}
-
-
-
-\begin{frame}[fragile]{Motivated by laziness}
-  \framesubtitle{Code $\to$ report}
-  \textbf{Code $\to$ Report}
+\begin{frame}[fragile]{Some supported inputs/outputs}
+  % \only<1>{The simple stuff:}
 
   \begin{onlyenv}<1>
+    Floats
     \begin{juliacode}
-      model = @ode_def Model begin
-      dL = (P*pC3 + pL)*(w^2)/(kL^2 + w^2) - DL*L
-      diC3 = -DL*iC3
-      dl = pc3*iC3 +pl*L - Dl*l + r1*c1l - r1*c1*l - P*r2*b*l + r2*bl - a1*c1*l*((c2*P)^na1)/(((c2*P)^na1)+(kc2c1^na1)) - P*a2*b*l*((c2*P)^na2)/(((c2*P)^na2)+(kc2b^na2))
-      dc1 = P*pc1 - Dc1*c1 + r1*c1l - r1*c1*l - a1*c1*l*((c2*P)^na1)/(((c2*P)^na1)+(kc2c1^na1))
-      dc1l = r1*c1*l - r1*c1l - Dc1l*c1l + a1*c1*l*((c2*P)^na1)/(((c2*P)^na1)+(kc2c1^na1))
-      db = P*pb*(kc1b^nc1b)/(c1l^nc1b + kc1b^nc1b) - Db*b + r2*bl - P*r2*b*l  - P*a2*b*l*((c2*P)^na2)/(((c2*P)^na2)+(kc2b^na2))
-      dbl = P*r2*b*l - r2*bl - Dbl*bl + P*a2*b*l*((c2*P)^na2)/(((c2*P)^na2)+(kc2b^na2))
-      dw = (P*pw*(kwc1^nwc)*(kwb^nwb)/((c1l^nwc + kwc1^nwc)*(bl^nwb+kwb^nwb))) - Dw*w
-      end P pL pC3 kL DL pl pc3 Dl r1 r1 pc1 Dc1 a1 kc2c1 Dc1l c2 pw kwc1 Dw r2 r2 pb kc1b Db a2 kc2b Dbl kwb na1 na2 nc1b nwb nwc
+      latexify( 1.2 )
+      ~\textcolor{white}{$1.2$}~
     \end{juliacode}
+
+    Rationals
+    \begin{juliacode}
+      latexify( 3//4 )
+      ~\large\textcolor{white}{$\frac{3}{4}$}~
+    \end{juliacode}
+
+    Symbols
+    \begin{juliacode}
+      latexify( :X_active )
+      ~\textcolor{white}{$X_{active}$}~
+    \end{juliacode}
+  $\ldots$
   \end{onlyenv}
 
   \begin{onlyenv}<2>
+
+    Expressions
     \begin{juliacode}
-      Julia> model.funcs
-      8-element Array{Expr,1}:
-      :(((P * pC3 + pL) * w ^ 2) / (kL ^ 2 + w ^ 2) - DL * L)
-      :(-DL * iC3)
-      :((((((((pc3 * iC3 + pl * L) - Dl * l) + r1 * c1l) - r1 * c1 * l) - P * r2 * b * l) + r2 * bl) - (a1 * c1 * l * (c2 * P) ^ na1) / ((c2 * P) ^ na1 + kc2c1 ^ na1)) - (P * a2 * b * l * (c2 * P) ^ na2) / ((c2 * P) ^ na2 + kc2b ^ na2))
-      :((((P * pc1 - Dc1 * c1) + r1 * c1l) - r1 * c1 * l) - (a1 * c1 * l * (c2 * P) ^ na1) / ((c2 * P) ^ na1 + kc2c1 ^ na1))
-      :(((r1 * c1 * l - r1 * c1l) - Dc1l * c1l) + (a1 * c1 * l * (c2 * P) ^ na1) / ((c2 * P) ^ na1 + kc2c1 ^ na1))
-      :(((((P * pb * kc1b ^ nc1b) / (c1l ^ nc1b + kc1b ^ nc1b) - Db * b) + r2 * bl) - P * r2 * b * l) - (P * a2 * b * l * (c2 * P) ^ na2) / ((c2 * P) ^ na2 + kc2b ^ na2))
-      :(((P * r2 * b * l - r2 * bl) - Dbl * bl) + (P * a2 * b * l * (c2 * P) ^ na2) / ((c2 * P) ^ na2 + kc2b ^ na2))
-      :((P * pw * kwc1 ^ nwc * kwb ^ nwb) / ((c1l ^ nwc + kwc1 ^ nwc) * (bl ^ nwb + kwb ^ nwb)) - Dw * w)
+      latexify( :(a/(b+c)) )
+      ~\textcolor{white}{$\frac{a}{b + c}$}~
+    \end{juliacode}
+
+    Strings $\to$ Expressions
+    \begin{juliacode}
+      latexify( "e^(-c*t)" )
+      ~\textcolor{white}{$e^{-c \cdot t}$}~
     \end{juliacode}
   \end{onlyenv}
 
-
   \begin{onlyenv}<3>
-    \Tiny
-    \begin{align}
-      \frac{dL}{dt} =& \frac{\left( P \cdot pC3 + pL \right) \cdot w^{2}}{kL^{2} + w^{2}} - DL \cdot L \\
-      \frac{diC3}{dt} =&  - DL \cdot iC3 \\
-      \frac{dl}{dt} =& pc3 \cdot iC3 + pl \cdot L - Dl \cdot l + r1 \cdot c1l - r1 \cdot c1 \cdot l - P \cdot r2 \cdot b \cdot l + r2 \cdot bl - \frac{a1 \cdot c1 \cdot l \cdot \left( c2 \cdot P \right)^{na1}}{\left( c2 \cdot P \right)^{na1} + kc2c1^{na1}} - \frac{P \cdot a2 \cdot b \cdot l \cdot \left( c2 \cdot P \right)^{na2}}{\left( c2 \cdot P \right)^{na2} + kc2b^{na2}} \\
-      \frac{dc1}{dt} =& P \cdot pc1 - Dc1 \cdot c1 + r1 \cdot c1l - r1 \cdot c1 \cdot l - \frac{a1 \cdot c1 \cdot l \cdot \left( c2 \cdot P \right)^{na1}}{\left( c2 \cdot P \right)^{na1} + kc2c1^{na1}} \\
-      \frac{dc1l}{dt} =& r1 \cdot c1 \cdot l - r1 \cdot c1l - Dc1l \cdot c1l + \frac{a1 \cdot c1 \cdot l \cdot \left( c2 \cdot P \right)^{na1}}{\left( c2 \cdot P \right)^{na1} + kc2c1^{na1}} \\
-      \frac{db}{dt} =& \frac{P \cdot pb \cdot kc1b^{nc1b}}{c1l^{nc1b} + kc1b^{nc1b}} - Db \cdot b + r2 \cdot bl - P \cdot r2 \cdot b \cdot l - \frac{P \cdot a2 \cdot b \cdot l \cdot \left( c2 \cdot P \right)^{na2}}{\left( c2 \cdot P \right)^{na2} + kc2b^{na2}} \\
-      \frac{dbl}{dt} =& P \cdot r2 \cdot b \cdot l - r2 \cdot bl - Dbl \cdot bl + \frac{P \cdot a2 \cdot b \cdot l \cdot \left( c2 \cdot P \right)^{na2}}{\left( c2 \cdot P \right)^{na2} + kc2b^{na2}} \\
-      \frac{dw}{dt} =& \frac{P \cdot pw \cdot kwc1^{nwc} \cdot kwb^{nwb}}{\left( c1l^{nwc} + kwc1^{nwc} \right) \cdot \left( bl^{nwb} + kwb^{nwb} \right)} - Dw \cdot w \\
-    \end{align}
+    Composite types (Arrays, Dicts, etc.)
+    \begin{juliacode}
+      M = [:(c_1*e^(-c_2*t)) 3//4
+           "x/(k+x)"         :X_inactive]
+      latexify(M)
+    \end{juliacode}
+    \begin{equation*}
+      \left[
+      \begin{array}{cc}
+        c_{1} \cdot e^{ - c_{2} \cdot t} & \frac{3}{4} \\
+        \frac{x}{k + x} & X_{inactive} \\
+      \end{array}
+      \right]
+    \end{equation*}
 
+    \textbullet Pick your output
+    % \begin{juliacode}
+    %   latexify(M; env=:tabular)
+    % \end{juliacode}
+    % \begin{tabular}{cc}
+    %   $c_{1} \cdot e^{ - c_{2} \cdot t}$ & $\frac{3}{4}$\\
+    %   $\frac{x}{k + x}$ & $X_{inactive}$\\
+    % \end{tabular}
+
+    \begin{juliacode}
+      latexify(M; env=:align)
+    \end{juliacode}
+    \vspace{-8mm}
+\begin{align*}
+c_{1} \cdot e^{ - c_{2} \cdot t} =& \frac{3}{4} \\
+\frac{x}{k + x} =& X_{inactive}
+\end{align*}
   \end{onlyenv}
 
+%   \begin{onlyenv}<5>
+%     The composites
+%
+%     Dicts
+%     \begin{juliacode}
+%       D = Dict(:a=>1.0, :b=>"a^c", :c=>3//4)
+%       latexify( D )
+%    \end{juliacode}
+%    \small
+% \begin{equation}
+% \left[
+% \begin{array}{cc}
+% a & 1.0 \\
+% b & a^{c} \\
+% c & \frac{3}{4} \\
+% \end{array}
+% \right]
+% \end{equation}
+%
+%     \begin{juliacode}
+%        latexify(D; env=:align)
+%    \end{juliacode}
+%    \vspace{-8mm}
+%    \small
+% \begin{align}
+% a =& 1.0 \\
+% b =& a^{c} \\
+% c =& \frac{3}{4}
+% \end{align}
+%  \end{onlyenv}
 \end{frame}
+
+
+\begin{frame}[fragile]{Print vs. Display (default)}
+
+  \textbullet Print works anywhere.
+  \begin{juliacode}
+    Julia> print( latexify("x/y") )
+    $\frac{x}{y}$
+  \end{juliacode}
+  % \vspace{5mm}
+
+  \textbullet Display works with Jupyter, Jupyterlab and Hydrogen.
+  \begin{juliacode}
+    Julia> display( latexify("x/y") )
+
+    ~\large\textcolor{white}{$\frac{x}{y}$}~
+  \end{juliacode}
+
+  \textbullet Defaults to display if possible.
+  \begin{juliacode}
+    Julia> latexify("x/y")
+
+    ~\large\textcolor{white}{$\frac{x}{y}$}~
+  \end{juliacode}
+
+  Cedits: LaTeXStrings.jl
+
+
+\end{frame}
+
+\begin{frame}{Julia makes this easy}
+  \begin{itemize}
+    \item Recursion,
+    \item Multiple dispatch,
+    \item Homoiconicity (Expressions!)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Julia makes this useful}
+  \begin{itemize}
+    \item Expressions everywhere
+
+
+    \item Macros $\to$ Domain-specific languages (DSLs)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{DiffEqBiological.jl}
+  \begin{onlyenv}<1>
+  \begin{juliacode}
+  rn = @reaction_network PositiveFeedbackReactions begin
+    hill(y, v_x, k_x, n_x), 0 --> x
+    d_x, x --> 0
+    hill(x, v_y, k_y, n_y), 0 --> y
+    d_y, y --> 0
+  end v_x k_x n_x d_x v_y k_y n_y d_y
+
+  latexify(rn)
+
+  \end{juliacode}
+
+
+\begin{align*}
+\frac{dx}{dt} =& \frac{v_{x} \cdot y^{n_{x}}}{k_{x}^{n_{x}} + y^{n_{x}}} - d_{x} \cdot x \\
+\frac{dy}{dt} =& \frac{v_{y} \cdot x^{n_{y}}}{k_{y}^{n_{y}} + x^{n_{y}}} - d_{y} \cdot y
+\end{align*}
+\end{onlyenv}
+
+
+  \begin{onlyenv}<2>
+  \begin{juliacode}
+  rn = @reaction_network PositiveFeedbackReactions begin
+    hill(y, v_x, k_x, n_x), 0 --> x
+    d_x, x --> 0
+    hill(x, v_y, k_y, n_y), 0 --> y
+    d_y, y --> 0
+  end v_x k_x n_x d_x v_y k_y n_y d_y
+
+  latexify(rn, env=:arrow)
+
+  \end{juliacode}
+
+
+\begin{align*}
+\ce{ \varnothing &<=>[{\frac{v_{x} \cdot y^{n_{x}}}{k_{x}^{n_{x}} + y^{n_{x}}}}][{d_{x}}] x}\\\\
+\ce{ \varnothing &<=>[{\frac{v_{y} \cdot x^{n_{y}}}{k_{y}^{n_{y}} + x^{n_{y}}}}][{d_{y}}] y}\\\\
+\end{align*}
+\end{onlyenv}
+
+\end{frame}
+
+\begin{frame}[fragile]{ParameterizedFunctions.jl}
+  \begin{onlyenv}<1>
+  \begin{juliacode}
+    ode = @ode_def PositiveFeedback begin
+      dx = v_x * y^n_x/(k_x^n_x + y^n_x) - d_x*x
+      dy = v_y * x^n_y/(k_y^n_y + x^n_y) - d_y*y
+    end v_x k_x n_x d_x v_y k_y n_y d_y
+
+    latexify(ode)
+  \end{juliacode}
+
+
+\begin{align*}
+\frac{dx}{dt} =& \frac{v_{x} \cdot y^{n_{x}}}{k_{x}^{n_{x}} + y^{n_{x}}} - d_{x} \cdot x \\
+\frac{dy}{dt} =& \frac{v_{y} \cdot x^{n_{y}}}{k_{y}^{n_{y}} + x^{n_{y}}} - d_{y} \cdot y
+\end{align*}
+\end{onlyenv}
+
+
+  \begin{onlyenv}<2>
+  \begin{juliacode}
+    ode = @ode_def PositiveFeedback begin
+      dx = v_x * y^n_x/(k_x^n_x + y^n_x) - d_x*x
+      dy = v_y * x^n_y/(k_y^n_y + x^n_y) - d_y*y
+    end v_x k_x n_x d_x v_y k_y n_y d_y
+
+    latexify(ode.symjac)
+  \end{juliacode}
+
+
+  \begin{equation*}
+\left[
+\begin{array}{cc}
+ - d_{x} & \frac{y^{-1 + n_{x}} \cdot v_{x} \cdot n_{x}}{k_{x}^{n_{x}} + y^{n_{x}}} - \frac{y^{-1 + 2 \cdot n_{x}} \cdot v_{x} \cdot n_{x}}{\left( k_{x}^{n_{x}} + y^{n_{x}} \right)^{2}} \\
+\frac{x^{-1 + n_{y}} \cdot v_{y} \cdot n_{y}}{k_{y}^{n_{y}} + x^{n_{y}}} - \frac{x^{-1 + 2 \cdot n_{y}} \cdot v_{y} \cdot n_{y}}{\left( k_{y}^{n_{y}} + x^{n_{y}} \right)^{2}} &  - d_{y} \\
+\end{array}
+\right]
+\end{equation*}
+\end{onlyenv}
+
+
+  \begin{onlyenv}<3>
+  \begin{juliacode}
+    ode = @ode_def PositiveFeedback begin
+      dx = v_x * y^n_x/(k_x^n_x + y^n_x) - d_x*x
+      dy = v_y * x^n_y/(k_y^n_y + x^n_y) - d_y*y
+    end v_x k_x n_x d_x v_y k_y n_y d_y
+
+    latexify(ode.params)
+  \end{juliacode}
+
+  \begin{equation*}
+  \left[
+  \begin{array}{cccccccc}
+  v_{x} & k_{x} & n_{x} & d_{x} & v_{y} & k_{y} & n_{y} & d_{y} \\
+  \end{array}
+  \right]
+  \end{equation*}
+
+\end{onlyenv}
+
+
+  \begin{onlyenv}<4>
+  \begin{juliacode}
+    ode = @ode_def PositiveFeedback begin
+      dx = v_x * y^n_x/(k_x^n_x + y^n_x) - d_x*x
+      dy = v_y * x^n_y/(k_y^n_y + x^n_y) - d_y*y
+    end v_x k_x n_x d_x v_y k_y n_y d_y
+
+    params = [10., 0.5, 1., 3., 1., 3., 3., 1.]
+    latexify(ode.params, params)
+  \end{juliacode}
+\footnotesize
+\begin{align*}
+v_{x} =& 10.0 \\
+k_{x} =& 0.5 \\
+n_{x} =& 1.0 \\
+d_{x} =& 3.0 \\
+v_{y} =& 1.0 \\
+k_{y} =& 3.0 \\
+n_{y} =& 3.0 \\
+d_{y} =& 1.0
+\end{align*}
+\end{onlyenv}
+
+\end{frame}
+
+
+
+% \begin{frame}[fragile]{Motivated by laziness}
+%   \framesubtitle{Code $\to$ report}
+%   \textbf{Code $\to$ Report}
+%
+%   \begin{onlyenv}<1>
+%     \begin{juliacode}
+%       model = @ode_def Model begin
+%         dL = (P*pC3 + pL)*(w^2)/(kL^2 + w^2) - DL*L
+%         diC3 = -DL*iC3
+%         dl = pc3*iC3 +pl*L - Dl*l + r1*c1l - r1*c1*l - P*r2*b*l + r2*bl - a1*c1*l*((c2*P)^na1)/(((c2*P)^na1)+(kc2c1^na1)) - P*a2*b*l*((c2*P)^na2)/(((c2*P)^na2)+(kc2b^na2))
+%         dc1 = P*pc1 - Dc1*c1 + r1*c1l - r1*c1*l - a1*c1*l*((c2*P)^na1)/(((c2*P)^na1)+(kc2c1^na1))
+%         dc1l = r1*c1*l - r1*c1l - Dc1l*c1l + a1*c1*l*((c2*P)^na1)/(((c2*P)^na1)+(kc2c1^na1))
+%         db = P*pb*(kc1b^nc1b)/(c1l^nc1b + kc1b^nc1b) - Db*b + r2*bl - P*r2*b*l  - P*a2*b*l*((c2*P)^na2)/(((c2*P)^na2)+(kc2b^na2))
+%         dbl = P*r2*b*l - r2*bl - Dbl*bl + P*a2*b*l*((c2*P)^na2)/(((c2*P)^na2)+(kc2b^na2))
+%         dw = (P*pw*(kwc1^nwc)*(kwb^nwb)/((c1l^nwc + kwc1^nwc)*(bl^nwb+kwb^nwb))) - Dw*w
+%       end P pL pC3 kL DL pl pc3 Dl r1 r1 pc1 Dc1 a1 kc2c1 Dc1l c2 pw kwc1 Dw r2 r2 pb kc1b Db a2 kc2b Dbl kwb na1 na2 nc1b nwb nwc
+%     \end{juliacode}
+%   \end{onlyenv}
+
+  % \begin{onlyenv}<2>
+  %   \begin{juliacode}
+  %     Julia> model.funcs
+  %     8-element Array{Expr,1}:
+  %     :(((P * pC3 + pL) * w ^ 2) / (kL ^ 2 + w ^ 2) - DL * L)
+  %     :(-DL * iC3)
+  %     :((((((((pc3 * iC3 + pl * L) - Dl * l) + r1 * c1l) - r1 * c1 * l) - P * r2 * b * l) + r2 * bl) - (a1 * c1 * l * (c2 * P) ^ na1) / ((c2 * P) ^ na1 + kc2c1 ^ na1)) - (P * a2 * b * l * (c2 * P) ^ na2) / ((c2 * P) ^ na2 + kc2b ^ na2))
+  %     :((((P * pc1 - Dc1 * c1) + r1 * c1l) - r1 * c1 * l) - (a1 * c1 * l * (c2 * P) ^ na1) / ((c2 * P) ^ na1 + kc2c1 ^ na1))
+  %     :(((r1 * c1 * l - r1 * c1l) - Dc1l * c1l) + (a1 * c1 * l * (c2 * P) ^ na1) / ((c2 * P) ^ na1 + kc2c1 ^ na1))
+  %     :(((((P * pb * kc1b ^ nc1b) / (c1l ^ nc1b + kc1b ^ nc1b) - Db * b) + r2 * bl) - P * r2 * b * l) - (P * a2 * b * l * (c2 * P) ^ na2) / ((c2 * P) ^ na2 + kc2b ^ na2))
+  %     :(((P * r2 * b * l - r2 * bl) - Dbl * bl) + (P * a2 * b * l * (c2 * P) ^ na2) / ((c2 * P) ^ na2 + kc2b ^ na2))
+  %     :((P * pw * kwc1 ^ nwc * kwb ^ nwb) / ((c1l ^ nwc + kwc1 ^ nwc) * (bl ^ nwb + kwb ^ nwb)) - Dw * w)
+  %   \end{juliacode}
+  % \end{onlyenv}
+
+
+%   \begin{onlyenv}<2>
+%     \Tiny
+%     \begin{align}
+%       \frac{dL}{dt} =& \frac{\left( P \cdot pC3 + pL \right) \cdot w^{2}}{kL^{2} + w^{2}} - DL \cdot L \\
+%       \frac{diC3}{dt} =&  - DL \cdot iC3 \\
+%       \frac{dl}{dt} =& pc3 \cdot iC3 + pl \cdot L - Dl \cdot l + r1 \cdot c1l - r1 \cdot c1 \cdot l - P \cdot r2 \cdot b \cdot l + r2 \cdot bl - \frac{a1 \cdot c1 \cdot l \cdot \left( c2 \cdot P \right)^{na1}}{\left( c2 \cdot P \right)^{na1} + kc2c1^{na1}} - \frac{P \cdot a2 \cdot b \cdot l \cdot \left( c2 \cdot P \right)^{na2}}{\left( c2 \cdot P \right)^{na2} + kc2b^{na2}} \\
+%       \frac{dc1}{dt} =& P \cdot pc1 - Dc1 \cdot c1 + r1 \cdot c1l - r1 \cdot c1 \cdot l - \frac{a1 \cdot c1 \cdot l \cdot \left( c2 \cdot P \right)^{na1}}{\left( c2 \cdot P \right)^{na1} + kc2c1^{na1}} \\
+%       \frac{dc1l}{dt} =& r1 \cdot c1 \cdot l - r1 \cdot c1l - Dc1l \cdot c1l + \frac{a1 \cdot c1 \cdot l \cdot \left( c2 \cdot P \right)^{na1}}{\left( c2 \cdot P \right)^{na1} + kc2c1^{na1}} \\
+%       \frac{db}{dt} =& \frac{P \cdot pb \cdot kc1b^{nc1b}}{c1l^{nc1b} + kc1b^{nc1b}} - Db \cdot b + r2 \cdot bl - P \cdot r2 \cdot b \cdot l - \frac{P \cdot a2 \cdot b \cdot l \cdot \left( c2 \cdot P \right)^{na2}}{\left( c2 \cdot P \right)^{na2} + kc2b^{na2}} \\
+%       \frac{dbl}{dt} =& P \cdot r2 \cdot b \cdot l - r2 \cdot bl - Dbl \cdot bl + \frac{P \cdot a2 \cdot b \cdot l \cdot \left( c2 \cdot P \right)^{na2}}{\left( c2 \cdot P \right)^{na2} + kc2b^{na2}} \\
+%       \frac{dw}{dt} =& \frac{P \cdot pw \cdot kwc1^{nwc} \cdot kwb^{nwb}}{\left( c1l^{nwc} + kwc1^{nwc} \right) \cdot \left( bl^{nwb} + kwb^{nwb} \right)} - Dw \cdot w \\
+%     \end{align}
+%
+%   \end{onlyenv}
+%
+% \end{frame}
 
 \end{document}
