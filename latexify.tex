@@ -125,15 +125,15 @@ skipabove=\baselineskip]{TitleBox}
       ~\textcolor{white}{$\frac{a}{b + c}$}~
     \end{juliacode}
 
-    Strings $\to$ Expressions
-    \begin{juliacode}
-      latexify( "e^(-c*t)" )
-      ~\textcolor{white}{$e^{-c \cdot t}$}~
-    \end{juliacode}
+    % Strings $\to$ Expressions
+    % \begin{juliacode}
+    %   latexify( "e^(-c*t)" )
+    %   ~\textcolor{white}{$e^{-c \cdot t}$}~
+    % \end{juliacode}
   \end{onlyenv}
 
   \begin{onlyenv}<3>
-    Composite types (Arrays, Dicts, etc.)
+    Container types (Arrays, Dicts, etc.)
     \begin{juliacode}
       M = [:(c_1*e^(-c_2*t)) 3//4
            "x/(k+x)"         :X_inactive]
@@ -263,8 +263,10 @@ $c$ & $\frac{3}{4}$\\
 
 \begin{frame}[fragile]{Julia makes this useful}
   \begin{itemize}
+    \setlength{\itemsep}{3mm}
     \item Expressions
     \begin{itemize}
+    \setlength{\itemsep}{3mm}
       \item Convertible to \LaTeX
       \item Omnipresent and accessible:
 \begin{juliacode}
@@ -275,12 +277,8 @@ $c$ & $\frac{3}{4}$\\
       return x / 2
     end))
 \end{juliacode}
-    \end{itemize}
 
-    \item Macros
-    \begin{itemize}
-      \item Manipulate Expressions
-      \item Domain-specific languages (DSLs)
+\item Expressions $\to$ Macros $\to$ Domain-specific languages (DSLs)
     \end{itemize}
 
   \end{itemize}
@@ -309,7 +307,7 @@ Julia> reactions.f_func
   \end{onlyenv}
 
 
-  \begin{onlyenv}<3>
+  \begin{onslide}<3>
     \begin{columns}[t]
 \begin{column}{0.5\textwidth}
     \begin{juliacode}
@@ -331,7 +329,7 @@ latexify(reactions; env=:arrow)
 \end{align*}
 \end{column}
 \end{columns}
-  \end{onlyenv}
+  \end{onslide}
 \end{frame}
 % \begin{frame}[fragile]{DiffEqBiological.jl}
 %   \begin{onlyenv}<1>
@@ -378,13 +376,13 @@ latexify(reactions; env=:arrow)
 % \end{frame}
 
 \begin{frame}[fragile]{ParameterizedFunctions.jl}
-  \begin{onlyenv}<1>
-  \begin{juliacode}
+    \begin{juliacode}
     ode = @ode_def PositiveFeedback begin
       dx = v_x * y^n_x/(k_x^n_x + y^n_x) - d_x*x
       dy = v_y * x^n_y/(k_y^n_y + x^n_y) - d_y*y
     end v_x k_x n_x d_x v_y k_y n_y d_y
   \end{juliacode}
+  \begin{onlyenv}<1>
   \begin{juliacode}
     latexify(ode)
   \end{juliacode}
@@ -398,12 +396,6 @@ latexify(reactions; env=:arrow)
 
 
   \begin{onlyenv}<2>
-  \begin{juliacode}
-    ode = @ode_def PositiveFeedback begin
-      dx = v_x * y^n_x/(k_x^n_x + y^n_x) - d_x*x
-      dy = v_y * x^n_y/(k_y^n_y + x^n_y) - d_y*y
-    end v_x k_x n_x d_x v_y k_y n_y d_y
-  \end{juliacode}
   \begin{juliacode}
     latexify(ode.symjac)
   \end{juliacode}
@@ -525,6 +517,7 @@ latexify(reactions; env=:arrow)
   \begin{itemize}
     \item Information access in Julia
     \begin{itemize}
+      \setlength{\itemsep}{3mm}
       \item Look for it,
       \item Use it,
       \item Pass it forward in your own packages.
