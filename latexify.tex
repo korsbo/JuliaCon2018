@@ -241,14 +241,14 @@ $c$ & $\frac{3}{4}$\\
     ~\large\textcolor{white}{\tiny LaTeXStrings.LaTeXString}~
   \end{juliacode}
 
-  \textbullet Print works anywhere.
+  \textbullet Print:
   \begin{juliacode}
     Julia> print( latexify("x/y") )
     $\frac{x}{y}$
   \end{juliacode}
   % \vspace{5mm}
 
-  \textbullet Display renders (when supported).
+  \textbullet Display (when supported):
   \begin{juliacode}
     Julia> display( latexify("x/y") )
 
@@ -264,11 +264,11 @@ $c$ & $\frac{3}{4}$\\
 \begin{frame}[fragile]{Julia makes this useful}
   \begin{itemize}
     \setlength{\itemsep}{3mm}
-    \item Expressions
+    \item Homoiconicity (Expressions)
     \begin{itemize}
     \setlength{\itemsep}{3mm}
       \item Convertible to \LaTeX
-      \item Omnipresent and accessible:
+      \item Information availability:
 \begin{juliacode}
   Julia> f(x) = x/2
   Julia> @code_lowered f(1.)
@@ -519,7 +519,7 @@ latexify(reactions; env=:arrow)
     \begin{itemize}
       \setlength{\itemsep}{3mm}
       \item Look for it,
-      \item Use it,
+      \item Use it (and do cool stuff),
       \item Pass it forward in your own packages.
     \end{itemize}
   \end{itemize}
